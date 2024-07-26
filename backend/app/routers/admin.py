@@ -64,3 +64,15 @@ async def activate_gym(db: db_dependency, gym_id: int = Path(gt=0)):
     db.commit()
     db.refresh(gym)
     return gym
+
+
+@router.put('/gyms/{gym_id}')
+async def update_gym(db: db_dependency, gym_request: GymRequest, gym_id: int = Path(gt=0)):
+    gym = db.query(Gym).filter(Gym.id == gym_id).first()
+    if gym is None:
+        raise HTTPException(status_code=404, detail='Gym not found.')
+    for field, value in gym_request.dict().items():
+        setattr(gym, field, value)
+    db.commit()
+    db.refresh(gym)
+    return gym
