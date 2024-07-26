@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import gym
+from .routers import gym, admin
 
 
 app = FastAPI()
@@ -20,4 +20,5 @@ async def root():
     return {"message": "Welcome to the Gym Booking API"}
 
 
+app.include_router(admin.router)
 app.include_router(gym.router)
