@@ -22,15 +22,45 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
+class GymRequest(BaseModel):
+    slug: str = Field(min_length=3)
+    name: str = Field(min_length=3, max_length=100)
+    is_active: bool
+    address: str = Field(min_length=3, max_length=100)
+    phone_number: str = Field(min_length=8, max_length=12)
+
+
 @router.get('/gyms')
 async def get_all_gyms(db: db_dependency):
     return db.query(Gym).all()
 
 
-@router.get('/gyms/{gym_id}')
-async def get_gym(db: db_dependency, gym_id: int = Path(gt=0)):
+@router.post('/gyms',status_code=status.HTTP_201_CREATED)
+async def create_gym(db: db_dependency, gym_request: GymRequest):
+    gym = Gym(**gym_request.dict())
+    db.add(gym)
+    db.commit()
+    db.refresh(gym)
+    return gym
+
+
+@router.patch('/gyms/{gym_id}/deactivate')
+async def deactivate_gym(db: db_dependency, gym_id: int = Path(gt=0)):
     gym = db.query(Gym).filter(Gym.id == gym_id).first()
     if gym is None:
         raise HTTPException(status_code=404, detail='Gym not found.')
-    else:
-        return gym
+    gym.is_active = False
+    db.commit()
+    db.refresh(gym)
+    return gym
+
+
+@router.patch('/gyms/{gym_id}/activate')
+async def activate_gym(db: db_dependency, gym_id: int = Path(gt=0)):
+    gym = db.query(Gym).filter(Gym.id == gym_id).first()
+    if gym is None:
+        raise HTTPException(status_code=404, detail='Gym not found.')
+    gym.is_active = True
+    db.commit()
+    db.refresh(gym)
+    return gym

@@ -7,8 +7,8 @@ from ..models.gym import Gym
 from ..database import SessionLocal
 
 router = APIRouter(
-    prefix='/gym',
-    tags=['gym']
+    prefix='/gyms',
+    tags=['gyms']
 )
 
 
@@ -21,4 +21,12 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+
+@router.get('/{gym_id}')
+async def get_gym(db: db_dependency, gym_id: int = Path(gt=0)):
+    gym = db.query(Gym).filter(Gym.id == gym_id).first()
+    if gym is None:
+        raise HTTPException(status_code=404, detail='Gym not found.')
+    else:
+        return gym
 
