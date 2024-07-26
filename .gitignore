@@ -1,5 +1,6 @@
 # General
 .vscode
+.DS_Store
 
 ## backend
 
