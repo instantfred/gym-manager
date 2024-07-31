@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import gym, admin
+from .routers import gym, admin, auth
 
 
 app = FastAPI()
@@ -22,3 +22,4 @@ async def root():
 
 app.include_router(admin.router)
 app.include_router(gym.router)
+app.include_router(auth.router)
